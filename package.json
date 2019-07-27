@@ -1,0 +1,36 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "css-loader": "^3.1.0",
+    "monaco-editor": "0.17.1",
+    "monaco-editor-webpack-plugin": "^1.7.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-monaco-editor": "^0.28.0",
+    "react-scripts": "3.0.1",
+    "style-loader": "^0.23.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
