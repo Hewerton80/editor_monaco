@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Submitions from './submitions'
+import Editor_monaco from './editor_monaco'
 
-ReactDOM.render(<Submitions />, document.getElementById('root'));
+ReactDOM.render(<Editor_monaco />, document.getElementById('root'));
 
