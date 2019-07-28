@@ -54,7 +54,8 @@ export default class Editor extends Component {
       }
     }
     catch(err){
-      alert('ERRO')
+      this.setState({loadingReponse:false})
+      alert('erro na conexão com o servidor')
     }
     
   }
