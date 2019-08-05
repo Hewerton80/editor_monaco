@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Editor_monaco from './editor_monaco'
+import Routes from './routes'
 
-ReactDOM.render(<Editor_monaco />, document.getElementById('root'));
+ReactDOM.render(<Routes />, document.getElementById('root'));
 
