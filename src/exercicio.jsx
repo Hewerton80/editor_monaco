@@ -76,16 +76,24 @@ export default class Editor extends Component {
       this.setState({loadingReponse:false})
       console.log(response.data);
       if(response.status===200){
-        this.state.editorRes.setValue('//Respostas...\n'+response.data.info)
+       
         this.setState({
           response:response.data.results,
-          percentualAcerto:response.data.percentualAcerto
+          percentualAcerto:response.data.percentualAcerto,
+          contentRes:'//Respostas...\n'+response.data.info,
+          content: this.state.editor.getValue()
         })
+        this.handleMount()
+        
       }
     }
     catch(err){
       Object.getOwnPropertyDescriptors(err)
       this.setState({loadingReponse:false})
+      this.setState({
+        content: this.state.editor.getValue()
+      })
+      this.handleMount()
       alert('erro na conexão com o servidor')
     }
     
@@ -205,86 +213,96 @@ export default class Editor extends Component {
     else{
     return (
     <div className="container">
-        <Fragment>
-          <div className='row'>
-            <div className ="col-12">
-              <div className="card">
-                <div className="card-header">
-                  <h3>{title}</h3>
-                </div>
-                <div className="card-body">
-                  <p className="card-text">{description}</p>
-                </div>
-                <div className="card-footer">
-                  <button className="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                    Exemplos
-                  </button>
-                  <div className="collapse" id="collapseExample">
-                    <table className="table">
-                      <tbody>
-                        <tr>
-                          <td><b>Exemplo de entrada</b></td>
-                          <td><b>Exemplo de saída</b></td>
-                        </tr>
-                        {results.map((result,i)=>
-                          <tr key={i}>
-                            <td>{result.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                            <td>{result.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                          </tr>
-                        ).filter((result,i) => i<3)}
-                      </tbody>
-                    </table>
+        <div className='row'>
+          <div className ="col-12">
+            <div className="card">
+              <div className="card-header">
+                <h3>{title}</h3>
+              </div>
+              <div className="card-body">
+                <p className="card-text">{description}</p>
+              </div>
+              <div className="card-footer">
+                <div className="form-row">
+                  <div className="form-group col-md-3">
+                    <button className="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                      Exemplos
+                    </button>
+                  </div>
+                  <div className="form-group col-md-9 text-right">
+                    <a href={`/atualizarQuestao/${this.props.match.params.id}`}>Editar questão</a>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className ="col-12">
-              <div className="form-row">
-                <div className="form-group col-md-3">
-                  <select className="form-control" onChange={e => this.changeLanguage(e)}>
-                    <option value = 'javascript'>JavaScript</option>
-                    <option value = 'cpp'>C++</option>
-                  </select>
-                </div>
-                <div className="form-group col-md-3">
-                  <select className="form-control" onChange={e => this.changeTheme(e)}>
-                    <option value = 'vs-dark'>Visual Studio Dark</option>
-                    <option value = 'hc-black'>High Contrast Dark</option>
-                    <option value = 'vs'>Visual Studio</option>
-                  </select>
-                </div>
-                <div className="form-group col-md-3">
-                  {loadingReponse?
-                    <button className="btn btn-primary" disabled>
-                      Executando <img src={imgLoading1} width="20px" /> 
-                    </button>
-                    :
-                    <button className="btn btn-primary" onClick={e => this.executar(e)}>
-                      Executar
-                    </button>
-                  }
+                
+                <div className="collapse" id="collapseExample">
+                  <table className="table">
+                   <tbody>
+                     <tr>
+                       <td><b>Exemplo de entrada</b></td>
+                       <td><b>Exemplo de saída</b></td>                       </tr>
+                        {results.map((result,i)=>                          <tr key={i}>
+                          <td>{result.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                          <td>{result.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                        </tr>
+                      ).filter((result,i) => i<3)}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
-          <div className='row'>
-            <div className="card" className ="col-12">
-              <div  id='monacoEditor' style={{height:"300px", width:"100%"}}/>
-            </div>
-            <div className="card" className ="col-12">
-              <h3>Resultados:</h3>
-            </div>
-            <div className="card" className ="col-12">
-              <div id='monacoEditorRes1' style={{height:"300px", width:"100%"}}/>
-            </div>
-          </div>
-        </Fragment>
+          <div className ="col-12">
+            <div className="form-row">
+              <div className="form-group col-md-3">
+                <select className="form-control" onChange={e => this.changeLanguage(e)}>
+                  <option value = 'javascript'>JavaScript</option>
+                  <option value = 'cpp'>C++</option>
+                </select>
+              </div>
+              <div className="form-group col-md-3">
+                 <select className="form-control" onChange={e => this.changeTheme(e)}>
+                   <option value = 'vs-dark'>Visual Studio Dark</option>
+                   <option value = 'hc-black'>High Contrast Dark</option>
+                   <option value = 'vs'>Visual Studio</option>
+                 </select>
+               </div>
+               <div className="form-group col-md-3 ">
+                 {loadingReponse?
+                   <button className="btn btn-primary btn-block" disabled>
+                    Executando <img src={imgLoading1} width="20px" /> 
+                   </button>
+                   :
+                   <button className="btn btn-primary btn-block" onClick={e => this.executar(e)}>
+                     Executar
+                   </button>
+                 }
+               </div>
+               <div className="form-group col-md-3">
+                  <button className="btn btn-primary btn-block" disabled>
+                     Submeter 
+                   </button>
+               </div>
+             </div>
+           </div>
+         </div>
+         <div className='row'>
+           <div className="card" className ="col-6">
+             <div  id='monacoEditor' style={{height:"400px", width:"100%"}}/>
+           </div>
+           {loadingReponse?
+           <div className="card" className ="col-6 text-center">
+              <img src={imgLoading2} width="300px" />           
+           </div>:
+           <div className="card" className ="col-6">
+             <div id='monacoEditorRes1' style={{height:"400px", width:"100%"}}/>
+           </div>
+           }
+         </div>
         <div className='row'>
-          {loadingReponse?
-            <div className='col-12 text-center'>
-               <img src={imgLoading2} width="300px" />
-            </div>
-          :
+          <div className="card" className ="col-12">
+            <h3>Resultados:</h3>
+          </div>
+          {response.length>0?
           <div className="card" className ="col-12">
             <table className="table">
               <tbody>
@@ -310,7 +328,7 @@ export default class Editor extends Component {
               </tbody>
             </table>
           </div>
-          }
+          :''}
         </div>
     </div>
     );

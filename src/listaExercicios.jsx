@@ -59,11 +59,13 @@ export default class Exercicios extends Component{
 		                <table className="table">
 		  					<tbody>
 			                    <tr>
-			                    	<td><h1>Exercícios</h1></td>
+			                    	<td>
+			                    		<p><a href='/questaoCriar' ><b>Criar exercício</b></a></p>
+			                    	</td>
 			                    </tr>
 			                    <tr>
 			                    	<td>
-			                    		<p><a href='/questaoCriar' ><b>Criar exercício</b></a></p>
+			                    		<h1>Exercícios</h1>
 			                    	</td>
 			                    </tr>
 		                    	{questions.map((question,i) =>

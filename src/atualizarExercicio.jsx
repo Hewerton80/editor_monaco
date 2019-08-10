@@ -68,7 +68,7 @@ export default class Editor extends Component {
     this.setState({loadingReponse:true})
     try{
       const response = await api.post('/submission/test',request)
-      this.setState({ loadingReponse:false})
+      this.setState({loadingReponse:false})
       console.log(response.data);
       if(response.status===200){
         this.setState({
@@ -95,7 +95,6 @@ export default class Editor extends Component {
     const {inputs,outputs} = this.state
     const entradas = inputs.split('\n')
     const saidas = outputs.split('\n')
-    console.log('saidas: '+saidas);
     const resultados = []
     for(let i=0 ; i<entradas.length ; i++ ){
       resultados.push({
@@ -106,15 +105,34 @@ export default class Editor extends Component {
     //console.log(resultados);
     return resultados
   }
-  async saveQuestion(e){
+  getInputsAndOutpus(results){
+    let inputs=[]
+    let output=[]
+    for(let i=0 ; i<results.length ; i++ ){
+      console.log(results[i]);
+      inputs.push(results[i].inputs.split('\n').join(','))
+      output.push(results[i].output.split('\n').join('|'))
+    }
+    
+    console.log('----');
+    inputs = inputs.join('\n')
+    output = output.join('\n')
+    console.log(inputs);
+    /*console.log('----');
+    console.log(output);*/
+    return [inputs,output]
+  }
+
+  async updateQuestion(e){
     const request = {
       title : this.state.title,
       description : this.state.description,
       results : this.getResults()
     }
     try{
+      const id = this.props.match.params.id
       this.setState({savingQuestion:true})
-      const response = await api.post('/question/store',request)
+      const response = await api.put(`/question/update/${id}`,request)
       console.log(response.data)
       if(response.status===200){
         this.setState({
@@ -131,10 +149,26 @@ export default class Editor extends Component {
       })
     }
   }
-  /*async goToQuestions(e){
-    e.preventDefault()
-    this.setState({redirect:'/'})
-  }*/
+  async mountScreen(){
+    const id = this.props.match.params.id
+    try{
+      const response = await api.get(`/question/${id}`)
+      console.log(response.data);
+      const [inputs,outputs] = this.getInputsAndOutpus(response.data.results)
+      this.setState({
+        title:response.data.title,
+        description:response.data.description,
+        inputs:inputs,
+        outputs:outputs
+      })
+    }
+    catch(err){
+      console.log(Object.getOwnPropertyDescriptors(err));
+    }
+  }
+  componentWillMount(){
+    this.mountScreen()
+  }
   componentDidMount() {
     this.handleLoad();
     //this.handleMount()
@@ -230,7 +264,7 @@ export default class Editor extends Component {
           <h4><a href='/' >Ir para tela de exercícios</a></h4>
         </div>
         <div className="col-12 text-center">
-          <h2>Nova questão</h2>
+          <h2>Atualização de questão</h2>
         </div>
       </div>
           <div className="form-row">
@@ -341,7 +375,7 @@ export default class Editor extends Component {
         {savingQuestion?
           <button id="save" type="button" className="btn btn-primary btn-lg btn-block" disabled>Salvando</button>
         :
-          <button id="save" onClick={e => this.saveQuestion(e)} type="button" className="btn btn-primary btn-lg btn-block">Salvar</button>        
+          <button id="save" onClick={e => this.updateQuestion(e)} type="button" className="btn btn-primary btn-lg btn-block">Atualizar</button>        
         }
     </div>
     );
