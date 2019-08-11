@@ -358,17 +358,17 @@ export default class Editor extends Component {
 
         {msgSavedSucess?
         <div className="alert alert-success alert-dismissible fade show" role="alert">
-          Questão salva com sucesso :)
-          <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+          Questão atualizada com sucesso :)
+          <button onClick={e => this.setState({msgSavedSucess:false})} type="button" className="close" data-dismiss="alert">
+            <span >&times;</span>
           </button>
         </div>:''}
 
         {msgSavedFailed?
         <div className="alert alert-warning  alert-dismissible fade show" role="alert">
-          Questão não Pôde ser salva :(
-          <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+          Questão não pôde ser atualizada :(
+          <button onClick={e => this.setState({msgSavedFailed:false})} type="button" className="close" data-dismiss="alert">
+            <span>&times;</span>
           </button>
         </div>:''}
 

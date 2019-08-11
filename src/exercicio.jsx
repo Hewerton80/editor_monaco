@@ -304,7 +304,7 @@ export default class Editor extends Component {
           </div>
           {response.length>0?
           <div className="card" className ="col-12">
-            <table className="table">
+            <table className="table" wrap="off">
               <tbody>
                 <tr>
                   <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
@@ -320,9 +320,9 @@ export default class Editor extends Component {
                   <tr key={i}>
                     <td>{`${i+1}° Teste`} </td>
                     <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                    <td>{teste.inputs.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
-                    <td>{teste.saidaResposta.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
-                    <td>{teste.output.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
+                    <td>{teste.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                    <td>{teste.saidaResposta.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                    <td>{teste.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
                   </tr>
                   )}
               </tbody>
