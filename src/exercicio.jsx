@@ -16,7 +16,7 @@ export default class Editor extends Component {
       editor:'',
       editorRes:'',
       content:"//code here...",
-      contentRes:"//Resposta\n",
+      contentRes:"",
       language:'javascript',
       theme:'vs-dark',
       response:[],
@@ -28,7 +28,8 @@ export default class Editor extends Component {
       results:'',
       inputs:'',
       outputs:'',
-      redirect:''
+      redirect:'',
+      showErro:false
     }
   }
   componentWillMount(){
@@ -80,7 +81,8 @@ export default class Editor extends Component {
         this.setState({
           response:response.data.results,
           percentualAcerto:response.data.percentualAcerto,
-          contentRes:'//Respostas...\n'+response.data.info,
+          contentRes:response.data.info,
+          showErro:response.data.showErro,
           content: this.state.editor.getValue()
         })
         this.handleMount()
@@ -149,10 +151,7 @@ export default class Editor extends Component {
     const elementEditor = document.getElementById('monacoEditor')
     elementEditor.innerHTML = ''
 
-    const elementEditorRes = document.getElementById('monacoEditorRes1')
-    elementEditorRes.innerHTML = ''
-
-    const { language,theme,content,contentRes } = this.state;
+    const { language,theme,content,contentRes,showErro } = this.state;
     //editor de codigo
     const editor = window.monaco.editor.create(elementEditor, {
       value: content,
@@ -165,23 +164,25 @@ export default class Editor extends Component {
       minimap:{enabled:false},
       overviewRulerBorder:false,
     });
-    //teste
-    const editorRes = window.monaco.editor.create(elementEditorRes, {
-      value: contentRes,
-      language:'javascript',
-      roundedSelection: false,
-      scrollBeyondLastLine: false,
-      scrollBeyondLastColumn:false,
-      selectOnLineNumbers:false,
-      minimap:{enabled:false},
-      overviewRulerBorder:false,
-      readOnly:true,
-    });
-    await this.setState({
-      editor:editor,
-      editorRes:editorRes
+    await this.setState({editor:editor})
 
-    })
+    if(showErro){
+      const elementEditorRes = document.getElementById('monacoEditorRes1')
+      elementEditorRes.innerHTML = ''
+      //teste
+      const editorRes = window.monaco.editor.create(elementEditorRes, {
+        value: contentRes,
+        language:'javascript',
+        roundedSelection: false,
+        scrollBeyondLastLine: false,
+        scrollBeyondLastColumn:false,
+        selectOnLineNumbers:false,
+        minimap:{enabled:false},
+        overviewRulerBorder:false,
+        readOnly:true,
+      });
+      await this.setState({editorRes:editorRes})
+    }
     return this.state.editor;
   }
   didLoad = e => {
@@ -199,7 +200,7 @@ export default class Editor extends Component {
   }
 
   render() {
-    const {response,redirect ,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
+    const {response,redirect,showErro,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
     if(redirect){
       return <Redirect to={'/'} exact={true} />
     }
@@ -225,16 +226,13 @@ export default class Editor extends Component {
               <div className="card-footer">
                 <div className="form-row">
                   <div className="form-group col-md-3">
-                    <button className="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                      Exemplos
-                    </button>
+                    <h4>Exemplos</h4>
                   </div>
                   <div className="form-group col-md-9 text-right">
                     <a href={`/atualizarQuestao/${this.props.match.params.id}`}>Editar questão</a>
                   </div>
                 </div>
                 
-                <div className="collapse" id="collapseExample">
                   <table className="table">
                    <tbody>
                      <tr>
@@ -247,7 +245,6 @@ export default class Editor extends Component {
                       ).filter((result,i) => i<3)}
                     </tbody>
                   </table>
-                </div>
               </div>
             </div>
           </div>
@@ -286,49 +283,56 @@ export default class Editor extends Component {
            </div>
          </div>
          <div className='row'>
-           <div className="card" className ="col-6">
+           <div className="card" className ="col-12">
              <div  id='monacoEditor' style={{height:"400px", width:"100%"}}/>
            </div>
-           {loadingReponse?
-           <div className="card" className ="col-6 text-center">
-              <img src={imgLoading2} width="300px" />           
-           </div>:
-           <div className="card" className ="col-6">
-             <div id='monacoEditorRes1' style={{height:"400px", width:"100%"}}/>
-           </div>
-           }
+
+
          </div>
         <div className='row'>
           <div className="card" className ="col-12">
             <h3>Resultados:</h3>
           </div>
-          {response.length>0?
-          <div className="card" className ="col-12">
-            <table className="table" wrap="off">
-              <tbody>
-                <tr>
-                  <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
-                </tr>
-                <tr>
-                  <td><b>N° teste</b></td>
-                  <td><b>Resposta</b></td>
-                  <td><b>Entrada(s) para teste</b></td>
-                  <td><b>Saída do seu programa</b></td>
-                  <td><b>Saída esperada</b></td>            
-                </tr>
-                {response.map((teste,i)=>
-                  <tr key={i}>
-                    <td>{`${i+1}° Teste`} </td>
-                    <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                    <td>{teste.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                    <td>{teste.saidaResposta.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                    <td>{teste.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+          {loadingReponse?
+           <div className="card" className ="col-12 text-center">
+              <img src={imgLoading2} width="300px" />           
+           </div>:
+           <Fragment>
+            {showErro?
+              <div className="card" className ="col-12">
+                <div id='monacoEditorRes1' style={{height:"200px", width:"100%"}}/>
+              </div>
+            :''
+            }
+            {response.length>0?
+            <div className="card" className ="col-12">
+              <table className="table" wrap="off">
+                <tbody>
+                  <tr>
+                    <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
                   </tr>
-                  )}
-              </tbody>
-            </table>
-          </div>
-          :''}
+                  <tr>
+                    <td><b>N° teste</b></td>
+                    <td><b>Resposta</b></td>
+                    <td><b>Entrada(s) para teste</b></td>
+                    <td><b>Saída do seu programa</b></td>
+                    <td><b>Saída esperada</b></td>            
+                  </tr>
+                  {response.map((teste,i)=>
+                    <tr key={i}>
+                      <td>{`${i+1}° Teste`} </td>
+                      <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
+                      <td>{teste.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                      <td>{teste.saidaResposta.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                      <td>{teste.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                    </tr>
+                    )}
+                </tbody>
+              </table>
+            </div>
+            :''}
+          </Fragment>
+          }
         </div>
     </div>
     );
