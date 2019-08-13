@@ -237,12 +237,26 @@ export default class Editor extends Component {
                    <tbody>
                      <tr>
                        <td><b>Exemplo de entrada</b></td>
-                       <td><b>Exemplo de saída</b></td>                       </tr>
-                        {results.map((result,i)=>                          <tr key={i}>
-                          <td>{result.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                          <td>{result.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                       <td><b>Exemplo de saída</b></td>                       
+                      </tr>
+                        {results.map((res,i)=> 
+                        <tr key={i}>
+                          <td>
+                            {res.inputs.split('').map((v,i) => {
+                              if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                              else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                              else return <Fragment key={i}>{v}</Fragment>
+                            })}
+                          </td>
+                          <td>
+                            {res.output.split('').map((v,i) => {
+                              if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                              else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                              else return <Fragment key={i}>{v}</Fragment>
+                            })}
+                          </td>
                         </tr>
-                      ).filter((result,i) => i<3)}
+                      ).filter((res,i) => i<3)}
                     </tbody>
                   </table>
               </div>
@@ -322,9 +336,27 @@ export default class Editor extends Component {
                     <tr key={i}>
                       <td>{`${i+1}° Teste`} </td>
                       <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                      <td>{teste.inputs.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                      <td>{teste.saidaResposta.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
-                      <td>{teste.output.split('\n').map((v,i) => <Fragment key={i}>{v}<br/></Fragment>)}</td>
+                      <td>
+                        {teste.inputs.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>
+                      <td>            
+                        {teste.saidaResposta.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>
+                      <td>
+                        {teste.output.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>                    
                     </tr>
                     )}
                 </tbody>

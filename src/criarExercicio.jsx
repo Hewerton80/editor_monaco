@@ -295,29 +295,47 @@ export default class Editor extends Component {
         <div className='row'>
           {response.length>0?
           <div className="card" className ="col-12">
-            <table className="table">
-              <tbody>
-                <tr>
-                  <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
-                </tr>
-                <tr>
-                  <td><b>N° teste</b></td>
-                  <td><b>Resposta</b></td>
-                  <td><b>Entrada(s) para teste</b></td>
-                  <td><b>Saída do seu programa</b></td>
-                  <td><b>Saída esperada</b></td>            
-                </tr>
-                {response.map((teste,i)=>
-                  <tr key={i}>
-                    <td>{`${i+1}° Teste`} </td>
-                    <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                    <td>{teste.inputs.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
-                    <td>{teste.saidaResposta.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
-                    <td>{teste.output.split('\n').map(v => <Fragment>{v}<br/></Fragment>)}</td>
+            <table className="table" wrap="off">
+                <tbody>
+                  <tr>
+                    <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
                   </tr>
-                  )}
-              </tbody>
-            </table>
+                  <tr>
+                    <td><b>N° teste</b></td>
+                    <td><b>Resposta</b></td>
+                    <td><b>Entrada(s) para teste</b></td>
+                    <td><b>Saída do seu programa</b></td>
+                    <td><b>Saída esperada</b></td>            
+                  </tr>
+                  {response.map((teste,i)=>
+                    <tr key={i}>
+                      <td>{`${i+1}° Teste`} </td>
+                      <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
+                      <td>
+                        {teste.inputs.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>
+                      <td>            
+                        {teste.saidaResposta.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>
+                      <td>
+                        {teste.output.split('').map((v,i) => {
+                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
+                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
+                          else return <Fragment key={i}>{v}</Fragment>
+                        })}
+                      </td>                    
+                    </tr>
+                    )}
+                </tbody>
+              </table>
           </div>
           :''}
         </div>
