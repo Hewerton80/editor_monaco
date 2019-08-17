@@ -5,7 +5,6 @@ import AtualizarQuestao from './atualizarExercicio'
 import Exercicios from './listaExercicios'
 import Exercicio from './exercicio'
 
-
 export default () => 
 	<BrowserRouter>
 		<Switch>
@@ -19,11 +18,11 @@ export default () =>
 					component = {Exercicio} 
 				/>,
 				<Route exact
-					path=  '/questaoCriar' 
+					path=  '/questao/nova/criar' 
 					component = {CriarQuestao} 
 				/>,
 				<Route exact
-					path=  '/atualizarQuestao/:id' 
+					path=  '/questao/:id/atualizar' 
 					component = {AtualizarQuestao} 
 				/>
 			]

@@ -2,7 +2,10 @@ import React, { Component,Fragment} from "react";
 import {Redirect} from 'react-router-dom'
 //import PropTypes from "prop-types";
 import api from './services/api'
+import apiCompiler from './services/apiCompiler'
+
 //import * as monaco from 'monaco-editor'
+import TableResults from './componentes/tableResults'
 import styleEditor from './assets/Editor.css'
 import imgLoading from './assets/loading.gif'
 import imgLoading1 from './assets/loading1.gif'
@@ -67,7 +70,7 @@ export default class Editor extends Component {
     }
     this.setState({loadingReponse:true})
     try{
-      const response = await api.post('/submission/test',request)
+      const response = await apiCompiler.post('/submission/exec',request)
       this.setState({loadingReponse:false})
       console.log(response.data);
       if(response.status===200){
@@ -108,9 +111,11 @@ export default class Editor extends Component {
   getInputsAndOutpus(results){
     let inputs=[]
     let output=[]
+     console.log('results');
     for(let i=0 ; i<results.length ; i++ ){
+
       console.log(results[i]);
-      inputs.push(results[i].inputs.split('\n').join(','))
+      inputs.push(results[i].inputs.slice(0,-1).split('\n').join(','))
       output.push(results[i].output.split('\n').join('|'))
     }
     
@@ -149,7 +154,8 @@ export default class Editor extends Component {
       })
     }
   }
-  async mountScreen(){
+ 
+  async componentWillMount(){
     const id = this.props.match.params.id
     try{
       const response = await api.get(`/question/${id}`)
@@ -164,11 +170,7 @@ export default class Editor extends Component {
     }
     catch(err){
       console.log(Object.getOwnPropertyDescriptors(err));
-    }
-  }
-  componentWillMount(){
-    this.mountScreen()
-  }
+    }  }
   componentDidMount() {
     this.handleLoad();
     //this.handleMount()
@@ -327,51 +329,12 @@ export default class Editor extends Component {
           </div>
         </Fragment>
         <div className='row'>
-          {response.length>0?
           <div className="card" className ="col-12">
-            <table className="table" wrap="off">
-                <tbody>
-                  <tr>
-                    <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
-                  </tr>
-                  <tr>
-                    <td><b>N° teste</b></td>
-                    <td><b>Resposta</b></td>
-                    <td><b>Entrada(s) para teste</b></td>
-                    <td><b>Saída do seu programa</b></td>
-                    <td><b>Saída esperada</b></td>            
-                  </tr>
-                  {response.map((teste,i)=>
-                    <tr key={i}>
-                      <td>{`${i+1}° Teste`} </td>
-                      <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                      <td>
-                        {teste.inputs.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>            
-                        {teste.saidaResposta.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>
-                        {teste.output.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>                    
-                    </tr>
-                    )}
-                </tbody>
-              </table>
-          </div>
-          :''}
+              <TableResults 
+                response={response}
+                percentualAcerto={percentualAcerto}
+              />
+            </div>
         </div>
 
         {msgSavedSucess?

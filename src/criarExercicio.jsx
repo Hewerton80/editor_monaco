@@ -2,7 +2,10 @@ import React, { Component,Fragment} from "react";
 import {Redirect} from 'react-router-dom'
 //import PropTypes from "prop-types";
 import api from './services/api'
+import apiCompiler from './services/apiCompiler'
+
 //import * as monaco from 'monaco-editor'
+import TableResults from './componentes/tableResults'
 import styleEditor from './assets/Editor.css'
 import imgLoading from './assets/loading.gif'
 import imgLoading1 from './assets/loading1.gif'
@@ -67,7 +70,7 @@ export default class Editor extends Component {
     }
     this.setState({loadingReponse:true})
     try{
-      const response = await api.post('/submission/test',request)
+      const response = await apiCompiler.post('/submission/exec',request)
       this.setState({ loadingReponse:false})
       console.log(response.data);
       if(response.status===200){
@@ -103,7 +106,8 @@ export default class Editor extends Component {
         output: saidas[i].split('|').join('\n')
       })
     }
-    //console.log(resultados);
+    console.log('resultados:');
+    console.log(resultados);
     return resultados
   }
   async saveQuestion(e){
@@ -211,6 +215,8 @@ export default class Editor extends Component {
 
   render() {
     const {percentualAcerto,response,redirect,msgSavedSucess,savingQuestion,msgSavedFailed ,loadingEditor,loadingReponse,title,description,inputs,outputs} = this.state
+    const { language,theme,content,contentRes } = this.state;
+
     /*if(redirect){
       return <Redirect to={'/'} exact={true} />
     }*/
@@ -293,58 +299,19 @@ export default class Editor extends Component {
           </div>
         </Fragment>
         <div className='row'>
-          {response.length>0?
-          <div className="card" className ="col-12">
-            <table className="table" wrap="off">
-                <tbody>
-                  <tr>
-                    <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
-                  </tr>
-                  <tr>
-                    <td><b>N° teste</b></td>
-                    <td><b>Resposta</b></td>
-                    <td><b>Entrada(s) para teste</b></td>
-                    <td><b>Saída do seu programa</b></td>
-                    <td><b>Saída esperada</b></td>            
-                  </tr>
-                  {response.map((teste,i)=>
-                    <tr key={i}>
-                      <td>{`${i+1}° Teste`} </td>
-                      <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                      <td>
-                        {teste.inputs.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>            
-                        {teste.saidaResposta.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>
-                        {teste.output.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>                    
-                    </tr>
-                    )}
-                </tbody>
-              </table>
-          </div>
-          :''}
+            <div className="card" className ="col-12">
+              <TableResults 
+                response={response}
+                percentualAcerto={percentualAcerto}
+              />
+            </div>
         </div>
 
         {msgSavedSucess?
         <div className="alert alert-success alert-dismissible fade show" role="alert">
-          Questão salva com sucesso :)
-          <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+          Questão atualizada com sucesso :)
+          <button onClick={e => this.setState({msgSavedSucess:false})} type="button" className="close" data-dismiss="alert">
+            <span >&times;</span>
           </button>
         </div>:''}
 
@@ -355,6 +322,7 @@ export default class Editor extends Component {
             <span>&times;</span>
           </button>
         </div>:''}
+        
 
         {savingQuestion?
           <button id="save" type="button" className="btn btn-primary btn-lg btn-block" disabled>Salvando</button>

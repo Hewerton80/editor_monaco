@@ -1,6 +1,8 @@
 import React,{Component} from 'react'
 import {Redirect} from 'react-router-dom'
 import api from './services/api'
+import apiCompiler from './services/apiCompiler'
+
 import imgLoading from './assets/loading.gif'
 import imgLoading1 from './assets/loading1.gif'
 import imgLoading2 from './assets/loading2.gif'
@@ -60,7 +62,7 @@ export default class Exercicios extends Component{
 		  					<tbody>
 			                    <tr>
 			                    	<td>
-			                    		<p><a href='/questaoCriar' ><b>Criar exercício</b></a></p>
+			                    		<p><a href='/questao/nova/criar' ><b>Criar exercício</b></a></p>
 			                    	</td>
 			                    </tr>
 			                    <tr>

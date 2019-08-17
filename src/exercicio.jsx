@@ -2,7 +2,10 @@ import React, { Component,Fragment} from "react";
 import {Redirect} from 'react-router-dom'
 //import PropTypes from "prop-types";
 import api from './services/api'
+import apiCompiler from './services/apiCompiler'
 //import * as monaco from 'monaco-editor'
+import TableResults from './componentes/tableResults'
+import CardEnunciado from './componentes/cardEnunciado'
 import styleEditor from './assets/Editor.css'
 import imgLoading from './assets/loading.gif'
 import imgLoading1 from './assets/loading1.gif'
@@ -29,21 +32,34 @@ export default class Editor extends Component {
       inputs:'',
       outputs:'',
       redirect:'',
-      showErro:false
+      someErro:false
     }
   }
-  componentWillMount(){
-    this.mountScreen()
+  async componentWillMount(){
+    const id = this.props.match.params.id
+    try{
+      const response = await api.get(`/question/${id}`)
+      console.log('results:');
+      console.log(response.data.results);
+      this.setState({
+        title:response.data.title,
+        description:response.data.description,
+        results:response.data.results,
+      })
+    }
+    catch(err){
+      console.log(Object.getOwnPropertyDescriptors(err));
+    }  
   }
-
   componentDidMount() {
     this.handleLoad();
-    //this.handleMount()
   }
   async changeLanguage(e){
     const language = e.target.value;
-    const content = this.state.editor.getValue()
-    const contentRes = this.state.editorRes.getValue()
+    const {editor,editorRes} = this.state
+    const content = editor?editor.getValue():''
+    const contentRes = editorRes?editorRes.getValue():''
+    
     //console.log(' e.target.value: '+language)
     await this.setState({
       language,
@@ -55,8 +71,9 @@ export default class Editor extends Component {
   }
   async changeTheme(e){
     const theme = e.target.value;
-    const content = this.state.editor.getValue()
-    const contentRes = this.state.editorRes.getValue()
+    const {editor,editorRes} = this.state
+    const content = editor?editor.getValue():''
+    const contentRes = editorRes?editorRes.getValue():''
     await this.setState({
       theme,
       content,
@@ -69,20 +86,19 @@ export default class Editor extends Component {
     const request = {
       codigo : this.state.editor.getValue(),
       linguagem : this.state.language,
+      results:this.state.results
     }
-    const id = this.props.match.params.id
     this.setState({loadingReponse:true})
     try{
-      const response = await api.post(`/submission/${id}`,request)
+      const response = await apiCompiler.post('/submission/exec',request)
       this.setState({loadingReponse:false})
       console.log(response.data);
       if(response.status===200){
-       
         this.setState({
           response:response.data.results,
           percentualAcerto:response.data.percentualAcerto,
           contentRes:response.data.info,
-          showErro:response.data.showErro,
+          someErro:response.data.someErro,
           content: this.state.editor.getValue()
         })
         this.handleMount()
@@ -115,22 +131,6 @@ export default class Editor extends Component {
     return resultados
   }
 
-
-  async mountScreen(){
-    const id = this.props.match.params.id
-    try{
-      const response = await api.get(`/question/${id}`)
-      console.log(response.data);
-      this.setState({
-        title:response.data.title,
-        description:response.data.description,
-        results:response.data.results,
-      })
-    }
-    catch(err){
-      console.log(Object.getOwnPropertyDescriptors(err));
-    }
-  }
   handleLoad() {
     // @note: safe to not check typeof window since it'll call on componentDidMount lifecycle:
     if (!window.require) {
@@ -151,7 +151,7 @@ export default class Editor extends Component {
     const elementEditor = document.getElementById('monacoEditor')
     elementEditor.innerHTML = ''
 
-    const { language,theme,content,contentRes,showErro } = this.state;
+    const { language,theme,content,contentRes,someErro } = this.state;
     //editor de codigo
     const editor = window.monaco.editor.create(elementEditor, {
       value: content,
@@ -166,7 +166,7 @@ export default class Editor extends Component {
     });
     await this.setState({editor:editor})
 
-    if(showErro){
+    if(someErro){
       const elementEditorRes = document.getElementById('monacoEditorRes1')
       elementEditorRes.innerHTML = ''
       //teste
@@ -200,7 +200,7 @@ export default class Editor extends Component {
   }
 
   render() {
-    const {response,redirect,showErro,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
+    const {response,redirect,someErro,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
     if(redirect){
       return <Redirect to={'/'} exact={true} />
     }
@@ -216,51 +216,12 @@ export default class Editor extends Component {
     <div className="container">
         <div className='row'>
           <div className ="col-12">
-            <div className="card">
-              <div className="card-header">
-                <h3>{title}</h3>
-              </div>
-              <div className="card-body">
-                <p className="card-text">{description}</p>
-              </div>
-              <div className="card-footer">
-                <div className="form-row">
-                  <div className="form-group col-md-3">
-                    <h4>Exemplos</h4>
-                  </div>
-                  <div className="form-group col-md-9 text-right">
-                    <a href={`/atualizarQuestao/${this.props.match.params.id}`}>Editar questão</a>
-                  </div>
-                </div>
-                
-                  <table className="table">
-                   <tbody>
-                     <tr>
-                       <td><b>Exemplo de entrada</b></td>
-                       <td><b>Exemplo de saída</b></td>                       
-                      </tr>
-                        {results.map((res,i)=> 
-                        <tr key={i}>
-                          <td>
-                            {res.inputs.split('').map((v,i) => {
-                              if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                              else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                              else return <Fragment key={i}>{v}</Fragment>
-                            })}
-                          </td>
-                          <td>
-                            {res.output.split('').map((v,i) => {
-                              if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                              else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                              else return <Fragment key={i}>{v}</Fragment>
-                            })}
-                          </td>
-                        </tr>
-                      ).filter((res,i) => i<3)}
-                    </tbody>
-                  </table>
-              </div>
-            </div>
+            <CardEnunciado
+              title={title}
+              description={description}
+              id={this.props.match.params.id}
+              results={results}
+            />
           </div>
           <div className ="col-12">
             <div className="form-row">
@@ -312,57 +273,20 @@ export default class Editor extends Component {
               <img src={imgLoading2} width="300px" />           
            </div>:
            <Fragment>
-            {showErro?
+            {someErro?
               <div className="card" className ="col-12">
                 <div id='monacoEditorRes1' style={{height:"200px", width:"100%"}}/>
               </div>
             :''
             }
-            {response.length>0?
+            
             <div className="card" className ="col-12">
-              <table className="table" wrap="off">
-                <tbody>
-                  <tr>
-                    <td>Percentual de acerto: {percentualAcerto + ' %'}</td>
-                  </tr>
-                  <tr>
-                    <td><b>N° teste</b></td>
-                    <td><b>Resposta</b></td>
-                    <td><b>Entrada(s) para teste</b></td>
-                    <td><b>Saída do seu programa</b></td>
-                    <td><b>Saída esperada</b></td>            
-                  </tr>
-                  {response.map((teste,i)=>
-                    <tr key={i}>
-                      <td>{`${i+1}° Teste`} </td>
-                      <td>{teste.isMatch?<span style={{color:'green'}}>Correta</span>:<span style={{color:'red'}}>Errado</span>}</td>
-                      <td>
-                        {teste.inputs.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>            
-                        {teste.saidaResposta.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>
-                      <td>
-                        {teste.output.split('').map((v,i) => {
-                          if(v ==='\n') return <Fragment key={i}><br/></Fragment>
-                          else if(v ===' ') return <Fragment key={i}>&nbsp;</Fragment>
-                          else return <Fragment key={i}>{v}</Fragment>
-                        })}
-                      </td>                    
-                    </tr>
-                    )}
-                </tbody>
-              </table>
+              <TableResults 
+                response={response}
+                percentualAcerto={percentualAcerto}
+              />
             </div>
-            :''}
+            
           </Fragment>
           }
         </div>
