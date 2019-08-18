@@ -5,6 +5,8 @@ import api from './services/api'
 import apiCompiler from './services/apiCompiler'
 //import * as monaco from 'monaco-editor'
 import TableResults from './componentes/tableResults'
+import FormSelect from './componentes/formSelect'
+
 import CardEnunciado from './componentes/cardEnunciado'
 import styleEditor from './assets/Editor.css'
 import imgLoading from './assets/loading.gif'
@@ -54,83 +56,7 @@ export default class Editor extends Component {
   componentDidMount() {
     this.handleLoad();
   }
-  async changeLanguage(e){
-    const language = e.target.value;
-    const {editor,editorRes} = this.state
-    const content = editor?editor.getValue():''
-    const contentRes = editorRes?editorRes.getValue():''
-    
-    //console.log(' e.target.value: '+language)
-    await this.setState({
-      language,
-      contentRes,
-      content
-    })
-    //console.log('language: '+this.state.language);
-    this.handleMount()
-  }
-  async changeTheme(e){
-    const theme = e.target.value;
-    const {editor,editorRes} = this.state
-    const content = editor?editor.getValue():''
-    const contentRes = editorRes?editorRes.getValue():''
-    await this.setState({
-      theme,
-      content,
-      contentRes
-    })
-    this.handleMount()
-  }
-  async executar(e){
-    //console.log(e.target.value);
-    const request = {
-      codigo : this.state.editor.getValue(),
-      linguagem : this.state.language,
-      results:this.state.results
-    }
-    this.setState({loadingReponse:true})
-    try{
-      const response = await apiCompiler.post('/submission/exec',request)
-      this.setState({loadingReponse:false})
-      console.log(response.data);
-      if(response.status===200){
-        this.setState({
-          response:response.data.results,
-          percentualAcerto:response.data.percentualAcerto,
-          contentRes:response.data.info,
-          someErro:response.data.someErro,
-          content: this.state.editor.getValue()
-        })
-        this.handleMount()
-        
-      }
-    }
-    catch(err){
-      Object.getOwnPropertyDescriptors(err)
-      this.setState({loadingReponse:false})
-      this.setState({
-        content: this.state.editor.getValue()
-      })
-      this.handleMount()
-      alert('erro na conexão com o servidor')
-    }
-    
-  }
-  getResults(){
-    const {inputs,outputs} = this.state
-    const entradas = inputs.split('\n')
-    const saidas = outputs.split('\n')
-    const resultados = []
-    for(let i=0 ; i<entradas.length ; i++ ){
-      resultados.push({
-        inputs: (entradas[i].split(',').map(inp => inp+'\n')).join(''),
-        output: saidas[i]
-      })
-    }
-    //console.log(resultados);
-    return resultados
-  }
-
+  //-----------------funções para carregar o editor---------------------//
   handleLoad() {
     // @note: safe to not check typeof window since it'll call on componentDidMount lifecycle:
     if (!window.require) {
@@ -198,7 +124,70 @@ export default class Editor extends Component {
       e.target.removeEventListener("load", this.didLoad);
     }
   }
+  //--------------------------------------------------------------------//
 
+  async changeLanguage(e){
+    const language = e.target.value;
+    const {editor,editorRes} = this.state
+    const content = editor?editor.getValue():''
+    const contentRes = editorRes?editorRes.getValue():''
+    
+    //console.log(' e.target.value: '+language)
+    await this.setState({
+      language,
+      contentRes,
+      content
+    })
+    //console.log('language: '+this.state.language);
+    this.handleMount()
+  }
+  async changeTheme(e){
+    const theme = e.target.value;
+    const {editor,editorRes} = this.state
+    const content = editor?editor.getValue():''
+    const contentRes = editorRes?editorRes.getValue():''
+    await this.setState({
+      theme,
+      content,
+      contentRes
+    })
+    this.handleMount()
+  }
+  async executar(e){
+    //console.log(e.target.value);
+    const request = {
+      codigo : this.state.editor.getValue(),
+      linguagem : this.state.language,
+      results:this.state.results
+    }
+    this.setState({loadingReponse:true})
+    try{
+      const response = await apiCompiler.post('/submission/exec',request)
+      this.setState({loadingReponse:false})
+      console.log(response.data);
+      if(response.status===200){
+        this.setState({
+          response:response.data.results,
+          percentualAcerto:response.data.percentualAcerto,
+          contentRes:response.data.info,
+          someErro:response.data.someErro,
+          content: this.state.editor.getValue()
+        })
+        this.handleMount()
+        
+      }
+    }
+    catch(err){
+      Object.getOwnPropertyDescriptors(err)
+      this.setState({loadingReponse:false})
+      this.setState({
+        content: this.state.editor.getValue()
+      })
+      this.handleMount()
+      alert('erro na conexão com o servidor')
+    }
+    
+  }
   render() {
     const {response,redirect,someErro,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
     if(redirect){
@@ -224,45 +213,19 @@ export default class Editor extends Component {
             />
           </div>
           <div className ="col-12">
-            <div className="form-row">
-              <div className="form-group col-md-3">
-                <select className="form-control" onChange={e => this.changeLanguage(e)}>
-                  <option value = 'javascript'>JavaScript</option>
-                  <option value = 'cpp'>C++</option>
-                </select>
-              </div>
-              <div className="form-group col-md-3">
-                 <select className="form-control" onChange={e => this.changeTheme(e)}>
-                   <option value = 'vs-dark'>Visual Studio Dark</option>
-                   <option value = 'hc-black'>High Contrast Dark</option>
-                   <option value = 'vs'>Visual Studio</option>
-                 </select>
-               </div>
-               <div className="form-group col-md-3 ">
-                 {loadingReponse?
-                   <button className="btn btn-primary btn-block" disabled>
-                    Executando <img src={imgLoading1} width="20px" /> 
-                   </button>
-                   :
-                   <button className="btn btn-primary btn-block" onClick={e => this.executar(e)}>
-                     Executar
-                   </button>
-                 }
-               </div>
-               <div className="form-group col-md-3">
-                  <button className="btn btn-primary btn-block" disabled>
-                     Submeter 
-                   </button>
-               </div>
-             </div>
+            <FormSelect
+              loadingReponse={loadingReponse}
+              changeLanguage={this.changeLanguage.bind(this)}
+              changeTheme={this.changeTheme.bind(this)}
+              executar={this.executar.bind(this)}
+            />
            </div>
          </div>
+
          <div className='row'>
            <div className="card" className ="col-12">
              <div  id='monacoEditor' style={{height:"400px", width:"100%"}}/>
            </div>
-
-
          </div>
         <div className='row'>
           <div className="card" className ="col-12">
@@ -286,7 +249,6 @@ export default class Editor extends Component {
                 percentualAcerto={percentualAcerto}
               />
             </div>
-            
           </Fragment>
           }
         </div>

@@ -6,6 +6,8 @@ import apiCompiler from './services/apiCompiler'
 
 //import * as monaco from 'monaco-editor'
 import TableResults from './componentes/tableResults'
+import FormExercicio from './componentes/formExercicio'
+import FormSelect from './componentes/formSelect'
 import styleEditor from './assets/Editor.css'
 import imgLoading from './assets/loading.gif'
 import imgLoading1 from './assets/loading1.gif'
@@ -36,6 +38,102 @@ export default class Editor extends Component {
       percentualAcerto:'',
       redirect:''
     }
+  }
+
+  componentDidMount() {
+    this.handleLoad();
+  }
+  //-----------------funções para carregar o editor---------------------//
+  handleLoad(){
+    // @note: safe to not check typeof window since it'll call on componentDidMount lifecycle:
+    if (!window.require) {
+      const loaderScript = window.document.createElement("script");
+      loaderScript.type = "text/javascript";
+      // @note: Due to the way AMD is being used by Monaco, there is currently no graceful way to integrate Monaco into webpack (cf. https://github.com/Microsoft/monaco-editor/issues/18):
+      loaderScript.src = "https://unpkg.com/monaco-editor/min/vs/loader.js";
+      loaderScript.addEventListener("load", this.didLoad);
+      window.document.body.appendChild(loaderScript);
+    } else {
+      this.didLoad();
+    }
+  }
+
+  async handleMount() {
+    console.log('editor montado');
+    await this.setState({loadingEditor:false})
+
+    const elementEditor = document.getElementById('monacoEditor')
+    elementEditor.innerHTML = ''
+
+    const elementEditorRes = document.getElementById('monacoEditorRes')
+    elementEditorRes.innerHTML = ''
+
+    const { language,theme,content,contentRes } = this.state;
+    //editor de codigo
+    const editor = window.monaco.editor.create(elementEditor, {
+      value: content,
+      language,
+      theme,
+      roundedSelection: false,
+      scrollBeyondLastLine: false,
+      scrollBeyondLastColumn:false,
+      selectOnLineNumbers:false,
+      minimap:{enabled:false},
+      overviewRulerBorder:false,
+    });
+    //teste
+    const editorRes = window.monaco.editor.create(elementEditorRes, {
+      value: contentRes,
+      language:'javascript',
+      roundedSelection: false,
+      scrollBeyondLastLine: false,
+      scrollBeyondLastColumn:false,
+      selectOnLineNumbers:false,
+      minimap:{enabled:false},
+      overviewRulerBorder:false,
+      readOnly:true,
+    });
+    await this.setState({
+      editor:editor,
+      editorRes:editorRes
+
+    })
+    return this.state.editor;
+  }
+  didLoad = e => {
+
+    window.require.config({
+      paths: { vs: "https://unpkg.com/monaco-editor/min/vs" }
+    });
+    window.require(["vs/editor/editor.main"], () => {
+      this.handleMount();
+    });
+
+    if (e) {
+      e.target.removeEventListener("load", this.didLoad);
+    }
+  }
+  //--------------------------------------------------------------//
+
+  async handleTitleChange(e){
+      this.setState({
+        title:e.target.value
+      })
+  }
+  async handleDescriptionChange(e){
+      this.setState({
+        description:e.target.value
+      })
+  }
+  async handleInputsChange(e){
+      this.setState({
+        inputs:e.target.value
+      })
+  }
+  async handleOutputsChange(e){
+      this.setState({
+        outputs:e.target.value
+      })
   }
   async changeLanguage(e){
     const language = e.target.value;
@@ -135,83 +233,6 @@ export default class Editor extends Component {
       })
     }
   }
-  /*async goToQuestions(e){
-    e.preventDefault()
-    this.setState({redirect:'/'})
-  }*/
-  componentDidMount() {
-    this.handleLoad();
-    //this.handleMount()
-  }
-  
-  handleLoad() {
-    // @note: safe to not check typeof window since it'll call on componentDidMount lifecycle:
-    if (!window.require) {
-      const loaderScript = window.document.createElement("script");
-      loaderScript.type = "text/javascript";
-      // @note: Due to the way AMD is being used by Monaco, there is currently no graceful way to integrate Monaco into webpack (cf. https://github.com/Microsoft/monaco-editor/issues/18):
-      loaderScript.src = "https://unpkg.com/monaco-editor/min/vs/loader.js";
-      loaderScript.addEventListener("load", this.didLoad);
-      window.document.body.appendChild(loaderScript);
-    } else {
-      this.didLoad();
-    }
-  }
-  async handleMount() {
-    console.log('editor montado');
-    await this.setState({loadingEditor:false})
-
-    const elementEditor = document.getElementById('monacoEditor')
-    elementEditor.innerHTML = ''
-
-    const elementEditorRes = document.getElementById('monacoEditorRes')
-    elementEditorRes.innerHTML = ''
-
-    const { language,theme,content,contentRes } = this.state;
-    //editor de codigo
-    const editor = window.monaco.editor.create(elementEditor, {
-      value: content,
-      language,
-      theme,
-      roundedSelection: false,
-      scrollBeyondLastLine: false,
-      scrollBeyondLastColumn:false,
-      selectOnLineNumbers:false,
-      minimap:{enabled:false},
-      overviewRulerBorder:false,
-    });
-    //teste
-    const editorRes = window.monaco.editor.create(elementEditorRes, {
-      value: contentRes,
-      language:'javascript',
-      roundedSelection: false,
-      scrollBeyondLastLine: false,
-      scrollBeyondLastColumn:false,
-      selectOnLineNumbers:false,
-      minimap:{enabled:false},
-      overviewRulerBorder:false,
-      readOnly:true,
-    });
-    await this.setState({
-      editor:editor,
-      editorRes:editorRes
-
-    })
-    return this.state.editor;
-  }
-  didLoad = e => {
-
-    window.require.config({
-      paths: { vs: "https://unpkg.com/monaco-editor/min/vs" }
-    });
-    window.require(["vs/editor/editor.main"], () => {
-      this.handleMount();
-    });
-
-    if (e) {
-      e.target.removeEventListener("load", this.didLoad);
-    }
-  }
 
   render() {
     const {percentualAcerto,response,redirect,msgSavedSucess,savingQuestion,msgSavedFailed ,loadingEditor,loadingReponse,title,description,inputs,outputs} = this.state
@@ -239,51 +260,22 @@ export default class Editor extends Component {
           <h2>Nova questão</h2>
         </div>
       </div>
-          <div className="form-row">
-            <div className="form-group col-md-12">
-              <label>Título: </label>
-              <input onChange={e => {this.setState({title:e.target.value})}} className="form-control" placeholder="Digite o título da questão..." value={title}/>
-            </div>
-            <div className="form-group col-md-12">
-              <label>Enunciado:  </label>
-              <textarea onChange={e => {this.setState({description:e.target.value})}} style={{height:'150px'}} className="form-control" value={description}></textarea> 
-            </div>
-            <div className="form-group col-md-12">
-              <label>Entradas para testes: </label>
-              <textarea onChange={e => {this.setState({inputs:e.target.value})}} style={{height:'150px'}} className="form-control" wrap="off" value={inputs}></textarea> 
-            </div>
-            <div className="form-group col-md-12">
-              <label>Saídas para testes: </label>
-              <textarea onChange={e => {this.setState({outputs:e.target.value})}} style={{height:'150px'}} className="form-control" wrap="off" value={outputs}></textarea> 
-            </div>
-          </div>
-        <Fragment>
-          <div className="form-row">
-            <div className="form-group col-md-3">
-              <select className="form-control" onChange={e => this.changeLanguage(e)}>
-                <option value = 'javascript'>JavaScript</option>
-                <option value = 'cpp'>C++</option>
-              </select>
-             </div>
-            <div className="form-group col-md-3">
-              <select className="form-control" onChange={e => this.changeTheme(e)}>
-                <option value = 'vs-dark'>Visual Studio Dark</option>
-                <option value = 'hc-black'>High Contrast Dark</option>
-                <option value = 'vs'>Visual Studio</option>
-              </select>
-            </div>
-            <div className="form-group col-md-3">
-              {loadingReponse?
-                <button className="btn btn-primary" disabled>
-                   Executando <img src={imgLoading1} width="20px" /> 
-                </button>
-                :
-                <button className="btn btn-primary" onClick={e => this.executar(e)}>
-                  Executar
-                </button>
-              }
-            </div>
-          </div>
+      <FormExercicio
+        title={title}
+        description={description}
+        inputs={inputs}
+        outputs={outputs}
+        loadingReponse={loadingReponse}
+        handleTitleChange={this.handleTitleChange.bind(this)}
+        handleDescriptionChange={this.handleDescriptionChange.bind(this)}
+        handleInputsChange={this.handleInputsChange.bind(this)}
+        handleOutputsChange={this.handleOutputsChange.bind(this)}
+      />
+      <FormSelect
+        changeLanguage={this.changeLanguage.bind(this)}
+        changeTheme={this.changeTheme.bind(this)}
+        executar={this.executar.bind(this)}
+      />
           <div className='row'>
             <div className='col-6'>
               <div id='monacoEditor' style={{height:"400px", width:"100%"}}/>
@@ -297,7 +289,7 @@ export default class Editor extends Component {
            </div>
            }
           </div>
-        </Fragment>
+        
         <div className='row'>
             <div className="card" className ="col-12">
               <TableResults 
