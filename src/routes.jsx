@@ -1,9 +1,15 @@
 import React from 'react'
 import {BrowserRouter,Switch,Route} from 'react-router-dom'
-import CriarQuestao from './criarExercicio'
-import AtualizarQuestao from './atualizarExercicio'
-import Exercicios from './listaExercicios'
-import Exercicio from './exercicio'
+
+import teste from './screens/teste'
+
+import SistemaAluno from './screens/sistemaAluno'
+import SistemaAlunoTurma from './screens/sistemaAlunoTurma'
+import SistemaAlunoTurmaLista from './screens/sistemaAlunoTurmaLista'
+import SistemaAlunoTurmaListaExecicio from './screens/sistemaAlunoTurmaListaExecicio'
+
+import SistemaProfessorExercicioCriar from './screens/sistemaProfessorExercicioCriar'
+import SistemaProfessorExercicioAtualizar from './screens/sistemaProfessorExercicioAtualizar'
 
 export default () => 
 	<BrowserRouter>
@@ -11,22 +17,33 @@ export default () =>
 			[
 				<Route exact
 					path=  '/' 
-					component = {Exercicios} 
+					component = {teste} 
 				/>,
 				<Route exact
-					path=  '/questao/:id' 
-					component = {Exercicio} 
+					path=  '/sistema/aluno' 
+					component = {SistemaAluno} 
 				/>,
 				<Route exact
-					path=  '/questao/nova/criar' 
-					component = {CriarQuestao} 
+					path=  '/sistema/aluno/turma/:id' 
+					component = {SistemaAlunoTurma} 
 				/>,
 				<Route exact
-					path=  '/questao/:id/atualizar' 
-					component = {AtualizarQuestao} 
+					path=  '/sistema/aluno/turma/:idTurma/lista/:idLista' 
+					component = {SistemaAlunoTurmaLista} 
+				/>,
+				<Route exact
+					path=  '/sistema/aluno/turma/:idTurma/lista/:idLista/exercicio/:idExercicio' 
+					component = {SistemaAlunoTurmaListaExecicio} 
+				/>,
+				<Route exact
+					path=  '/sistema/professor/exercicio/criar' 
+					component = {SistemaProfessorExercicioCriar} 
+				/>,
+				<Route exact
+					path=  '/sistema/professor/exercicio/:id/atualizar' 
+					component = {SistemaProfessorExercicioAtualizar} 
 				/>
 			]
-			
 		</Switch>
 	</BrowserRouter>
 

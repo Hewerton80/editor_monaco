@@ -18,7 +18,7 @@ export default (props) => {
                     <h4>Exemplos</h4>
                   </div>
                   <div className="form-group col-md-9 text-right">
-                    <a href={`/questao/${id}/atualizar`}>Editar questão</a>
+                    <a href={`/sistema/professor/exercicio/${id}/atualizar`}>Editar questão</a>
                   </div>
                 </div>
                 

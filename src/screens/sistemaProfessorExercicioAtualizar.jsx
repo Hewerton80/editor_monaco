@@ -1,17 +1,17 @@
 import React, { Component,Fragment} from "react";
 import {Redirect} from 'react-router-dom'
 //import PropTypes from "prop-types";
-import api from './services/api'
-import apiCompiler from './services/apiCompiler'
+import api from '../services/api'
+import apiCompiler from '../services/apiCompiler'
 
 //import * as monaco from 'monaco-editor'
-import TableResults from './componentes/tableResults'
-import FormExercicio from './componentes/formExercicio'
-import FormSelect from './componentes/formSelect'
-import styleEditor from './assets/Editor.css'
-import imgLoading from './assets/loading.gif'
-import imgLoading1 from './assets/loading1.gif'
-import imgLoading2 from './assets/loading2.gif'
+import TableResults from '../componentes/tableResults'
+import FormExercicio from '../componentes/formExercicio'
+import FormSelect from '../componentes/formSelect'
+import styleEditor from '../assets/Editor.css'
+import imgLoading from '../assets/loading.gif'
+import imgLoading1 from '../assets/loading1.gif'
+import imgLoading2 from '../assets/loading2.gif'
 
 export default class Editor extends Component {
   // @todo: Use typescript to handle propTypes via monaco.d.ts
@@ -289,7 +289,7 @@ export default class Editor extends Component {
     <div className="container">
       <div className="row">
         <div className="col-12">
-          <h4><a href='/' >Ir para tela de exercícios</a></h4>
+          <h4><a href='/sistema/professor/exercicio/criar' >Criar novo exercicio</a></h4>
         </div>
         <div className="col-12 text-center">
           <h2>Atualização de questão</h2>

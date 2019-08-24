@@ -1,17 +1,17 @@
 import React, { Component,Fragment} from "react";
 import {Redirect} from 'react-router-dom'
 //import PropTypes from "prop-types";
-import api from './services/api'
-import apiCompiler from './services/apiCompiler'
+import api from '../services/api'
+import apiCompiler from '../services/apiCompiler'
 //import * as monaco from 'monaco-editor'
-import TableResults from './componentes/tableResults'
-import FormSelect from './componentes/formSelect'
+import TableResults from '../componentes/tableResults'
+import FormSelect from '../componentes/formSelect'
 
-import CardEnunciado from './componentes/cardEnunciado'
-import styleEditor from './assets/Editor.css'
-import imgLoading from './assets/loading.gif'
-import imgLoading1 from './assets/loading1.gif'
-import imgLoading2 from './assets/loading2.gif'
+import CardEnunciado from '../componentes/cardEnunciado'
+import styleEditor from '../assets/Editor.css'
+import imgLoading from '../assets/loading.gif'
+import imgLoading1 from '../assets/loading1.gif'
+import imgLoading2 from '../assets/loading2.gif'
 export default class Editor extends Component {
   // @todo: Use typescript to handle propTypes via monaco.d.ts
   // (https://github.com/Microsoft/monaco-editor/blob/master/monaco.d.ts):
@@ -36,11 +36,14 @@ export default class Editor extends Component {
       redirect:'',
       someErro:false
     }
+    this.idTurma = this.props.match.params.idTurma
+    this.idLista = this.props.match.params.idLista
+    this.idExercicio = this.props.match.params.idExercicio
   }
   async componentWillMount(){
-    const id = this.props.match.params.id
+
     try{
-      const response = await api.get(`/question/${id}`)
+      const response = await api.get(`/question/${this.idExercicio}`)
       console.log('results:');
       console.log(response.data.results);
       this.setState({
@@ -208,7 +211,7 @@ export default class Editor extends Component {
             <CardEnunciado
               title={title}
               description={description}
-              id={this.props.match.params.id}
+              id={this.idExercicio}
               results={results}
             />
           </div>
