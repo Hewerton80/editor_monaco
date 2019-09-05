@@ -193,9 +193,9 @@ export default class Editor extends Component {
   }
   render() {
     const {response,redirect,someErro,percentualAcerto,loadingEditor,loadingReponse,title,description,inputs,outputs,results} = this.state
-    if(redirect){
+    /*if(redirect){
       return <Redirect to={'/'} exact={true} />
-    }
+    }*/
     if(loadingEditor){
       return(
         <div className="container text-center">
